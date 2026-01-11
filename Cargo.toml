@@ -1,0 +1,19 @@
+[package]
+name = "openltomanager"
+version = "0.1.0"
+authors = ["depot"]
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dioxus = { version = "0.7.1", features = ["router", "fullstack"] }
+rusqlite = { version = "0.32.0", features = ["bundled"], optional = true }
+serde = { version = "1.0.228", features = ["derive"] }
+
+[features]
+default = ["web", "server"]
+web = ["dioxus/web"]
+desktop = ["dioxus/desktop"]
+mobile = ["dioxus/mobile"]
+server = ["dioxus/server", "dep:rusqlite"]
