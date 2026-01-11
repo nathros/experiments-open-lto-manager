@@ -6,6 +6,11 @@ use dioxus::{
     prelude::*,
 };
 
+#[cfg(feature = "server")]
+use crate::backend::database::table_manufacturer::TableManufacturer;
+#[cfg(feature = "server")]
+use crate::backend::database::{table::Table, table_tape_type::TableTapeType};
+
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct Tape {
     pub id: i32,
@@ -13,28 +18,41 @@ pub struct Tape {
     pub worm: bool,
 }
 
+//static DB_VERSION_INIT: isize = 0;
+static DB_VERSION_LATEST: isize = 0;
+
 #[cfg(feature = "server")]
 thread_local! {
-    static DB: std::sync::LazyLock<rusqlite::Connection> = std::sync::LazyLock::new(|| {
+    pub static DB: std::sync::LazyLock<rusqlite::Connection> = std::sync::LazyLock::new(|| {
         match std::fs::create_dir("database") {
             Ok(_) => {},
             Err(err) => {
                 if err.kind() != ErrorKind::AlreadyExists {
-                    // log::error!("Failed to create dir {e}");
+                    // log::error!("Failed to create dir {e}"); FIXME
                 }
             },
         }
 
         let conn = rusqlite::Connection::open("database/database.db").expect("Failed to open database");
 
+        let current_database_version: isize = 0;
+
         conn.execute_batch(
             "CREATE TABLE IF NOT EXISTS tape (
                 id INTEGER PRIMARY KEY,
                 barcode VARCHAR(8),
                 worm BOOLEAN
-            );",
+            );"
         )
         .unwrap();
+
+        // FIXME handle errors
+        if let Ok(_) = TableManufacturer::create_table(&conn) {
+            let _ = TableManufacturer::update_table(current_database_version, DB_VERSION_LATEST);
+        }
+        if let Ok(_) = TableTapeType::create_table(&conn) {
+            let _ = TableTapeType::update_table(current_database_version, DB_VERSION_LATEST);
+        }
 
         //save_tape(Tape { id: 0, barcode: "first".to_string(), worm: true }).await;
 
