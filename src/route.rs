@@ -9,6 +9,7 @@ use crate::frontend::pages::test::Test;
 #[rustfmt::skip]
 pub enum Route {
     #[layout(Navbar)]
+    
     #[route("/")]
     Home {},
 

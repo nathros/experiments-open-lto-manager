@@ -1,9 +1,11 @@
 use dioxus::prelude::*;
 
+mod asset;
 mod backend;
 mod frontend;
 mod route;
 
+use crate::asset::MAIN_CSS;
 use crate::backend::api::echo::echo_server;
 use crate::route::Route;
 
@@ -19,10 +21,6 @@ fn App() -> Element {
         Router::<Route> {}
     }
 }
-
-//const FAVICON: Asset = asset!("/assets/favicon.ico");
-const MAIN_CSS: Asset = asset!("/assets/main.css");
-//const HEADER_SVG: Asset = asset!("/assets/header.svg");
 
 #[component]
 fn Echo() -> Element {

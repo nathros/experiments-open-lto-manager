@@ -9,7 +9,7 @@ use crate::backend::database::{
 /// Home page
 #[component]
 pub fn Show() -> Element {
-    let mut tapes_list = use_loader(list_tapes)?;
+    //let mut tapes_list = use_loader(list_tapes)?;
     let mut bar = use_signal(|| "".to_string());
 
     let manu_list: Loader<Vec<RecordManufacturer>> = use_loader(list_manu)?;
@@ -26,7 +26,7 @@ pub fn Show() -> Element {
                         worm: false,
                     })
                     .await;
-                tapes_list.restart();
+               // tapes_list.restart();
             },
             "save!"
         }
@@ -38,13 +38,13 @@ pub fn Show() -> Element {
                 th { "barcode" }
                 th { "worm" }
             }
-            for (id , t) in tapes_list.cloned() {
+            /*for (id , t) in tapes_list.cloned() {
                 tr {
                     th { "{id}" }
                     th { "{t.barcode}" }
                     th { "{t.worm}" }
                 }
-            }
+            }*/
         }
         hr {}
         table {
@@ -52,11 +52,16 @@ pub fn Show() -> Element {
                 th { "id" }
                 th { "name" }
             }
-            for t in manu_list.cloned() {
+            SuspenseBoundary {
+                fallback: |_| rsx! {
+                    p { "loading" }
+                },
+                for t in manu_list.cloned() {
                 tr {
                     th { "{t.id}" }
                     th { "{t.name}" }
                 }
+            }
             }
         }
     }
