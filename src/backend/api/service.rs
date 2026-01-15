@@ -65,3 +65,51 @@ pub async fn text_stream() -> Result<TextStream> {
         cmd.wait().unwrap(); // exit code here
     }))
 }
+
+#[get("/api/test_stream2")]
+pub async fn text_stream2() -> Result<TextStream> {
+    // We can create a new text stream with `spawn`
+    Ok(TextStream::spawn(move |tx| async move {
+        use std::io::{BufRead, BufReader};
+
+        // bash -c "cat a.txt | tail -f a.txt"
+
+        let vvv = &["-c", "cat a.txt && tail -f a.txt"];
+        let mut cmd = Command::new("bash")
+            .args(vvv)
+            //.arg("\"cat a.txt && tail -f a.txt\"")
+            .stdout(Stdio::piped())
+            .stderr(Stdio::piped())
+            .spawn()
+            .unwrap();
+
+        {
+            let stdout = cmd.stdout.take().unwrap();
+            let stdout_reader = BufReader::new(stdout);
+            let stdout_lines = stdout_reader.lines();
+
+            let stderr = cmd.stderr.take().unwrap();
+            let stderr_reader = BufReader::new(stderr);
+            let stderr_lines = stderr_reader.lines();
+
+            for line in stdout_lines {
+                if tx.is_closed() {
+                    cmd.kill();
+                    break;
+                }
+                tx.unbounded_send(format!("{}", line.unwrap())).is_ok();
+            }
+
+            for line in stderr_lines {
+                if tx.is_closed() {
+                    cmd.kill();
+                    break;
+                }
+
+                tx.unbounded_send(format!("{}", line.unwrap())).is_ok();
+            }
+        }
+
+        cmd.wait().unwrap(); // exit code here
+    }))
+}

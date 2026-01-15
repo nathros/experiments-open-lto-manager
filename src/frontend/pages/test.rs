@@ -1,12 +1,12 @@
 use dioxus::prelude::*;
 
-use crate::backend::api::{api_manufacturer::list_manu, service::text_stream};
+use crate::backend::api::{api_manufacturer::list_manu, service::text_stream2};
 
 #[component]
 pub fn Test() -> Element {
-    /*let mut stream_output: Signal<Vec<String>> = use_signal(|| vec![]);
+    let mut stream_output: Signal<Vec<String>> = use_signal(|| vec![]);
     use_future(move || async move {
-        if let Ok(mut stream) = text_stream().await {
+        if let Ok(mut stream) = text_stream2().await {
             while let Some(Ok(text)) = stream.next().await {
                 //stream_output.write().push_str(&text);
                 //stream_output.write().clone_from(&text);
@@ -16,15 +16,15 @@ pub fn Test() -> Element {
     });
 
     rsx! {
-        p { "stream" },
+        p { "stream" }
         for i in stream_output.read().iter() {
             span { "{i}" }
-            hr {  }
+            hr {}
         }
         //p { "{stream_output}" }
-    }*/
+    }
 
-    let mut breed = use_signal(|| "hound".to_string());
+    /*let mut breed = use_signal(|| "hound".to_string());
     let dogs = use_resource(move || async move { list_manu });
 
     rsx! {
@@ -45,5 +45,5 @@ pub fn Test() -> Element {
                 "Loading..."
             }
         }
-    }
+    }*/
 }
