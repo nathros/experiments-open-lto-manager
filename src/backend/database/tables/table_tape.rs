@@ -1,10 +1,12 @@
 use rusqlite::{params, Connection, Error};
 
-use crate::backend::database::{models::model_tape::RecordTape, tables::table::Table};
+use crate::backend::database::{
+    models::model_tape::RecordTape, models::model_tape::RecordTapeJoin, tables::table::Table,
+};
 
 pub struct TableTape {}
 
-impl Table<RecordTape> for TableTape {
+impl Table<RecordTape, RecordTapeJoin> for TableTape {
     fn create_table(db: &Connection) -> Result<(), Error> {
         match db.table_exists(None, "tape") {
             std::result::Result::Ok(exist) => {
@@ -43,9 +45,17 @@ impl Table<RecordTape> for TableTape {
         Ok(())
     }
 
+    fn get(_db: &Connection, _record_id: i64) -> Result<RecordTape, Error> {
+        todo!()
+    }
+
+    fn get_join(_db: &Connection, _record_id: i64) -> Result<RecordTapeJoin, Error> {
+        todo!()
+    }
+
     fn insert_record(db: &Connection, record: &RecordTape) -> Result<usize, Error> {
         db.execute(
-            "INSERT INTO manufacturer (
+            "INSERT INTO tape (
                     manufacturer_id,
                     tape_type_id,
                     barcode,
@@ -70,8 +80,8 @@ impl Table<RecordTape> for TableTape {
                     ?10,
                     ?11);",
             params![
-                record.manufacturer.id,
-                record.tape_type.id,
+                record.manufacturer_id,
+                record.tape_type_id,
                 record.barcode,
                 record.serial,
                 record.format,
@@ -87,7 +97,7 @@ impl Table<RecordTape> for TableTape {
 
     fn update_record(db: &Connection, record: &RecordTape) -> Result<usize, Error> {
         db.execute(
-            "UPDATE manufacturer SET
+            "UPDATE tape SET
                     manufacturer_id = ?1,
                     tape_type_id = ?2,
                     barcode = ?3,
@@ -101,8 +111,8 @@ impl Table<RecordTape> for TableTape {
                     last_used = ?11,
                 WHERE id = ?12",
             params![
-                record.manufacturer.id,
-                record.tape_type.id,
+                record.manufacturer_id,
+                record.tape_type_id,
                 record.barcode,
                 record.serial,
                 record.format,
@@ -115,6 +125,14 @@ impl Table<RecordTape> for TableTape {
                 record.id
             ],
         )
+    }
+
+    fn delete_record(db: &Connection, record_id: i64) -> Result<usize, Error> {
+        db.execute("DELETE FROM tape WHERE id = ?1;", params![record_id])
+    }
+
+    fn fill(_row: &rusqlite::Row<'_>, _offset: usize) -> Result<RecordTape, Error> {
+        todo!()
     }
 }
 

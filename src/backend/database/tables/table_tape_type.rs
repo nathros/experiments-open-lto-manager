@@ -5,7 +5,7 @@ use crate::backend::database::{models::model_tape_type::RecordTapeType, tables::
 
 pub struct TableTapeType {}
 
-impl Table<RecordTapeType> for TableTapeType {
+impl Table<RecordTapeType, RecordTapeType> for TableTapeType {
     fn create_table(db: &Connection) -> Result<(), Error> {
         match db.table_exists(None, "tape_type") {
             std::result::Result::Ok(exist) => {
@@ -247,6 +247,15 @@ impl Table<RecordTapeType> for TableTapeType {
         Ok(())
     }
 
+    fn get(db: &Connection, record_id: i64) -> Result<RecordTapeType, Error> {
+        db.prepare("SELECT * FROM manufacturer WHERE id = ?1")?
+            .query_one([record_id], |row| TableTapeType::fill(row, 0))
+    }
+
+    fn get_join(db: &Connection, record_id: i64) -> Result<RecordTapeType, Error> {
+        TableTapeType::get(db, record_id)
+    }
+
     fn insert_record(db: &Connection, record: &RecordTapeType) -> Result<usize, Error> {
         db.execute(
             "INSERT INTO tape_type (
@@ -305,6 +314,24 @@ impl Table<RecordTapeType> for TableTapeType {
                 record.id
             ],
         )
+    }
+
+    fn delete_record(db: &Connection, record_id: i64) -> Result<usize, Error> {
+        db.execute("DELETE FROM tape_type WHERE id = ?1;", params![record_id])
+    }
+
+    fn fill(row: &rusqlite::Row<'_>, _offset: usize) -> Result<RecordTapeType, Error> {
+        Ok(RecordTapeType {
+            id: row.get(0)?,
+            generation: row.get(1)?,
+            id_reg: row.get(2)?,
+            id_worm: row.get(3)?,
+            native_capacity: row.get(4)?,
+            colour_reg: row.get(5)?,
+            colour_hp: row.get(6)?,
+            colour_worm_reg: row.get(7)?,
+            colour_worm_hp: row.get(8)?,
+        })
     }
 }
 

@@ -13,6 +13,22 @@ use crate::backend::database::models::{
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct RecordTape {
     pub id: i64,
+    pub manufacturer_id: i64,
+    pub tape_type_id: i64,
+    pub barcode: String,
+    pub serial: String,
+    pub format: TapeFormat,
+    pub worm: bool,
+    pub encrypted: bool,
+    pub compressed: bool,
+    pub used_space: i64,
+    pub created: DateTime<Local>,
+    pub last_used: DateTime<Local>,
+}
+
+#[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
+pub struct RecordTapeJoin {
+    pub id: i64,
     pub manufacturer: RecordManufacturer,
     pub tape_type: RecordTapeType,
     pub barcode: String,
