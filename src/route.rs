@@ -5,8 +5,11 @@ use crate::frontend::pages::home::Home;
 use crate::frontend::pages::show::Show;
 use crate::frontend::pages::test::Test;
 
+use crate::frontend::pages::dbg::db_man::DBMan;
+use crate::frontend::pages::dbg::db_type::DBType;
+use crate::frontend::pages::tape::Tape;
+
 #[derive(Debug, Clone, Routable, PartialEq)]
-#[rustfmt::skip]
 pub enum Route {
     #[layout(Navbar)]
     #[route("/")]
@@ -18,6 +21,12 @@ pub enum Route {
     #[route("/test")]
     Test {},
 
-    //#[route("/blog/:id")]
-    //Blog { id: i32 },
+    #[route("/tape/:id")]
+    Tape { id: i64 },
+
+    // Debug only
+    #[route("/db-man")]
+    DBMan {},
+    #[route("/db-type")]
+    DBType {},
 }

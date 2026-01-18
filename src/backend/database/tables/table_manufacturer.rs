@@ -1,25 +1,26 @@
 use rusqlite::{params, Connection, Error};
 
-use super::models::model_manufacturer::RecordManufacturer;
-use crate::backend::database::table::Table;
+use crate::backend::database::{
+    models::model_manufacturer::RecordManufacturer, tables::table::Table,
+};
 
 pub struct TableManufacturer {}
 
 impl Table<RecordManufacturer> for TableManufacturer {
     fn create_table(db: &Connection) -> Result<(), Error> {
-        match db.execute(
-            "SELECT name FROM sqlite_master WHERE name='manufacturer'",
-            (),
-        ) {
-            Ok(size) if size == 1 => return Ok(()), // Table already exists so no need to add records
-            Ok(_) => {}
+        match db.table_exists(None, "manufacturer") {
+            std::result::Result::Ok(exist) => {
+                if exist == true {
+                    return Ok(());
+                }
+            }
             Err(e) => return Err(e),
         }
 
         if let Err(e) = db.execute(
             "CREATE TABLE IF NOT EXISTS manufacturer (
                 id INTEGER PRIMARY KEY,
-                name text
+                name TEXT NOT NULL
             );",
             (),
         ) {

@@ -8,11 +8,11 @@ pub fn Navbar() -> Element {
     rsx! {
         div { id: "navbar",
             Link { to: Route::Home {}, "Home" }
-            br {  }
             Link { to: Route::Show {}, "Show" }
-            br {  }
             Link { to: Route::Test {}, "Test" }
-            //Link { to: Route::Blog { id: 1 }, "Blog" }
+            Link { to: Route::Tape { id: (0) }, "Tape" }
+            Link { to: Route::DBMan {}, "database-man" }
+            Link { to: Route::DBType {}, "database-type" }
         }
 
         Outlet::<Route> {}

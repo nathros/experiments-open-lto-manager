@@ -1,25 +1,28 @@
+use dioxus::prelude::info;
 use rusqlite::{params, Connection, Error};
 
-use super::models::model_tape_type::RecordTapeType;
-use crate::backend::database::table::Table;
+use crate::backend::database::{models::model_tape_type::RecordTapeType, tables::table::Table};
 
 pub struct TableTapeType {}
 
 impl Table<RecordTapeType> for TableTapeType {
     fn create_table(db: &Connection) -> Result<(), Error> {
-        match db.execute("SELECT name FROM sqlite_master WHERE name='tape_type'", ()) {
-            Ok(size) if size == 1 => return Ok(()), // Table already exists so no need to add records
-            Ok(_) => {}
+        match db.table_exists(None, "tape_type") {
+            std::result::Result::Ok(exist) => {
+                if exist == true {
+                    return Ok(());
+                }
+            }
             Err(e) => return Err(e),
         }
 
         if let Err(e) = db.execute(
             "CREATE TABLE IF NOT EXISTS tape_type (
                 id INTEGER PRIMARY KEY,
-                generation text,
+                generation TEXT NOT NULL,
                 id_reg VARCHAR(2),
                 id_worm VARCHAR(2),
-                native_capacity BIGINT,
+                native_capacity BIGINT NOT NULL,
                 colour_reg VARCHAR(16),
                 colour_hp VARCHAR(16),
                 colour_worm_reg VARCHAR(16),
@@ -46,6 +49,7 @@ impl Table<RecordTapeType> for TableTapeType {
                 colour_worm_hp: "".to_string(),
             },
         ) {
+            info!("{e}");
             return Err(e);
         }
 
@@ -246,13 +250,13 @@ impl Table<RecordTapeType> for TableTapeType {
     fn insert_record(db: &Connection, record: &RecordTapeType) -> Result<usize, Error> {
         db.execute(
             "INSERT INTO tape_type (
-                    generation
-                    id_reg
-                    id_worm
-                    native_capacity
-                    colour_reg
-                    colour_hp
-                    colour_worm
+                    generation,
+                    id_reg,
+                    id_worm,
+                    native_capacity,
+                    colour_reg,
+                    colour_hp,
+                    colour_worm_reg,
                     colour_worm_hp)
                 VALUES (
                     ?1,
@@ -263,7 +267,7 @@ impl Table<RecordTapeType> for TableTapeType {
                     ?6,
                     ?7,
                     ?8
-                )",
+                );",
             params![
                 record.generation,
                 record.id_reg,
@@ -287,7 +291,7 @@ impl Table<RecordTapeType> for TableTapeType {
                     colour_reg = ?5,
                     colour_hp = ?6,
                     colour_worm_reg = ?7,
-                    colour_worm_hp = ?8,
+                    colour_worm_hp = ?8
                 WHERE id = ?9",
             params![
                 record.generation,
@@ -316,7 +320,7 @@ impl TableTapeType {
                     colour_reg,
                     colour_hp,
                     colour_worm_reg,
-                    colour_worm_hp,
+                    colour_worm_hp
                 FROM tape_type
                 ORDER BY id",
         )?

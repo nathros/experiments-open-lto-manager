@@ -2,7 +2,7 @@ use dioxus::fullstack::serde::{Deserialize, Serialize};
 
 #[derive(Debug, Serialize, Deserialize, PartialEq, Clone)]
 pub struct RecordTapeType {
-    pub id: i32,
+    pub id: i64,
     pub generation: String,
     pub id_reg: String,
     pub id_worm: String,
